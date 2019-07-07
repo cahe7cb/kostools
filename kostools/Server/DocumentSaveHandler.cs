@@ -17,6 +17,7 @@ namespace kOS.Tools.Server
 
         private ILanguageServer _server;
         private SynchronizationCapability _capability;
+        private BufferManager _bufferManager;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter()
@@ -26,18 +27,28 @@ namespace kOS.Tools.Server
             }
         );
 
-        public DocumentSaveHandler(ILanguageServer server)
+        public DocumentSaveHandler(ILanguageServer server, BufferManager bufferManager)
         {
             _server = server;
+            _bufferManager = bufferManager;
+            Console.Error.WriteLine("DocumentSaveHandler: " + this.GetHashCode());
         }
 
         public Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
         {
-            var script = new kOS.Tools.Script();
-            var errors = script.Compile(null, 0, request.Text, null, null);
-            if(errors.Count > 0)
+            if(request.Text != null)
             {
-                var diagnostics = new Diagnostic[errors.Count];
+                _bufferManager.put(request.TextDocument.Uri, request.Text);
+            }
+
+            var script = new kOS.Tools.Script();
+
+            var text = _bufferManager.get(request.TextDocument.Uri);
+            var errors = script.Compile(null, 0, text, null, null);
+
+            var diagnostics = new Diagnostic[errors.Count];
+            if (errors.Count > 0)
+            {
                 for (int i = 0; i < errors.Count; i++)
                 {
                     var error = errors[i];
@@ -51,23 +62,15 @@ namespace kOS.Tools.Server
                         ),
                         Severity = DiagnosticSeverity.Error,
                         RelatedInformation = new Container<DiagnosticRelatedInformation>(),
-                        Source = request.Text.Substring(error.Position, error.Length)
+                        Source = script.getSource()
                     };
                 }
-                _server.Document.PublishDiagnostics(new PublishDiagnosticsParams()
-                {
-                    Uri = request.TextDocument.Uri,
-                    Diagnostics = new Container<Diagnostic>(diagnostics)
-                });
             }
-            else
+            _server.Document.PublishDiagnostics(new PublishDiagnosticsParams()
             {
-                _server.Document.PublishDiagnostics(new PublishDiagnosticsParams()
-                {
-                    Uri = request.TextDocument.Uri,
-                    Diagnostics = new Container<Diagnostic>()
-                });
-            }
+                Uri = request.TextDocument.Uri,
+                Diagnostics = new Container<Diagnostic>(diagnostics)
+            });
             return Unit.Task;
         }
 

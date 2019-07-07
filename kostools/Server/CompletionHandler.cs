@@ -27,24 +27,12 @@ namespace kOS.Tools.Server
         public CompletionHandler(ILanguageServer server)
         {
             _server = server;
+            Console.Error.WriteLine("CompletionHandler: " + this.GetHashCode());
         }
 
         public Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new CompletionList(
-                new CompletionItem()
-                {
-                    InsertText = "sqrt",
-                    Label = "sqrt function",
-                    Documentation = "square root"
-                },
-                new CompletionItem()
-                {
-                    InsertText = "abs",
-                    Label = "abs function",
-                    Documentation = "absolute value"
-                }
-            ));
+            return Task.FromResult(new CompletionList());
         }
 
         public CompletionRegistrationOptions GetRegistrationOptions()

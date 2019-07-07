@@ -116,6 +116,15 @@
     <Reference Include="kOS.Safe">
       <HintPath>..\KSPDirlink\GameData\kOS\Plugins\kOS.Safe.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\KSPDirlink\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\KSPDirlink\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\KSPDirlink\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -132,11 +141,14 @@
     <Compile Include="Server\DocumentOpenHandler.cs" />
     <Compile Include="Server\DocumentSaveHandler.cs" />
     <Compile Include="Execution\StaticSetup.cs" />
+    <Compile Include="Binding\BindingManager.cs" />
+    <Compile Include="Server\BufferManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Compilation\" />
     <Folder Include="Execution\" />
     <Folder Include="Server\" />
+    <Folder Include="Binding\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

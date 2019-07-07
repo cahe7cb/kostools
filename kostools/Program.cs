@@ -1,18 +1,30 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Microsoft.Extensions.Logging;
 using kOS.Tools.Server;
 using kOS.Safe.Exceptions;
+using kOS.Safe.Encapsulation;
+using kOS.Suffixed;
+using System.Reflection;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace kOS.Tools
 {
     class Program
     {
+        /*
         public static void Main(string[] args)
         {
             SyntaxVerifier verifier = new SyntaxVerifier();
+            Structure obj = new OrbitInfo();
+            FieldInfo info = obj.GetType().BaseType.GetField("instanceSuffixes", BindingFlags.NonPublic | BindingFlags.Instance);
+            IDictionary<string, ISuffix> suffixes = (IDictionary<string, kOS.Safe.Encapsulation.ISuffix>)info.GetValue(obj);
+
+            suffixes.TryGetValue("POSITION", out ISuffix position);
+
+            Console.WriteLine(position.GetType().GetGenericArguments()[0]);
 
             verifier.Setup();
 
@@ -31,11 +43,12 @@ namespace kOS.Tools
                 Console.WriteLine(e.VerboseMessage);
             }
         }
+        */
 
-        //static void Main(string[] args)
-        //{
-        //    MainAsync(args).Wait();
-        //}
+        static void Main(string[] args)
+        {
+            MainAsync(args).Wait();
+        }
 
         static async Task MainAsync(string[] args)
         {
@@ -56,6 +69,10 @@ namespace kOS.Tools
                     .WithHandler<DocumentOpenHandler>()
                     .WithHandler<CompletionHandler>()
                     .WithHandler<DocumentCloseHandler>()
+                    .WithServices((IServiceCollection services) =>
+                    {
+                        services.AddSingleton<BufferManager>();
+                    })
                 );
 
             await server.WaitForExit;

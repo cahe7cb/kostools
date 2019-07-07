@@ -18,6 +18,8 @@ namespace kOS.Tools.Server
         public SynchronizationCapability _capability;
         public ILanguageServer _server;
 
+        private BufferManager _bufferManager;
+
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter()
             {
@@ -26,9 +28,11 @@ namespace kOS.Tools.Server
             }
         );
 
-        public DocumentChangeHandler(ILanguageServer server)
+        public DocumentChangeHandler(ILanguageServer server, BufferManager bufferManager)
         {
             _server = server;
+            _bufferManager = bufferManager;
+            Console.Error.WriteLine("DocumentChangeHandler: " + this.GetHashCode());
         }
 
         public TextDocumentChangeRegistrationOptions GetRegistrationOptions()
@@ -42,7 +46,10 @@ namespace kOS.Tools.Server
 
         public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
         {
-            Console.Error.WriteLine("This shit did change");
+            foreach(var change in request.ContentChanges)
+            {
+                _bufferManager.patch(request.TextDocument.Uri, change);
+            }
             return Unit.Task;
         }
 

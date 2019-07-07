@@ -23,5 +23,10 @@ namespace kOS.Tools
         {
             return parser.Parse(scriptText).Errors;
         }
+
+        public string getSource()
+        {
+            return parser.GetType().ToString();
+        }
     }
 }

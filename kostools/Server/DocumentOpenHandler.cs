@@ -15,6 +15,7 @@ namespace kOS.Tools.Server
     {
         private ILanguageServer _server;
         private SynchronizationCapability _capability;
+        private BufferManager _bufferManager;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter()
@@ -24,14 +25,22 @@ namespace kOS.Tools.Server
             }
         );
 
-        public DocumentOpenHandler(ILanguageServer server)
+        public DocumentOpenHandler(ILanguageServer server, BufferManager bufferManager)
         {
             _server = server;
+            _bufferManager = bufferManager;
+            Console.Error.WriteLine("DocumentOpenHandler: " + this.GetHashCode());
         }
 
         public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            Console.Error.WriteLine("This shit did open");
+            Console.Error.WriteLine("Opened document " + request.TextDocument.Uri.ToString()
+                                + " of language " + request.TextDocument.LanguageId
+                                + " version " + request.TextDocument.Version);
+            if(!(request.TextDocument.Text is null))
+            {
+                _bufferManager.put(request.TextDocument.Uri, request.TextDocument.Text);
+            }
             return Unit.Task;
         }
 

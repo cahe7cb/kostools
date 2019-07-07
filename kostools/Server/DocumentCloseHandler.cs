@@ -27,6 +27,7 @@ namespace kOS.Tools.Server
         public DocumentCloseHandler(ILanguageServer server)
         {
             _server = server;
+            Console.Error.WriteLine("DocumentCloseHandler: " + this.GetHashCode());
         }
 
         public Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
