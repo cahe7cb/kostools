@@ -33,7 +33,41 @@ namespace kOS.Tools.Server
 
         public Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
         {
-            Console.Error.WriteLine(request.Text ?? "(null)");
+            var script = new kOS.Tools.Script();
+            var errors = script.Compile(null, 0, request.Text, null, null);
+            if(errors.Count > 0)
+            {
+                var diagnostics = new Diagnostic[errors.Count];
+                for (int i = 0; i < errors.Count; i++)
+                {
+                    var error = errors[i];
+                    diagnostics[i] = new Diagnostic()
+                    {
+                        Code = error.Code,
+                        Message = error.Message,
+                        Range = new Range(
+                            new Position(error.Line-1, error.Column-1),
+                            new Position(error.Line-1, (error.Column-1)+error.Length)
+                        ),
+                        Severity = DiagnosticSeverity.Error,
+                        RelatedInformation = new Container<DiagnosticRelatedInformation>(),
+                        Source = request.Text.Substring(error.Position, error.Length)
+                    };
+                }
+                _server.Document.PublishDiagnostics(new PublishDiagnosticsParams()
+                {
+                    Uri = request.TextDocument.Uri,
+                    Diagnostics = new Container<Diagnostic>(diagnostics)
+                });
+            }
+            else
+            {
+                _server.Document.PublishDiagnostics(new PublishDiagnosticsParams()
+                {
+                    Uri = request.TextDocument.Uri,
+                    Diagnostics = new Container<Diagnostic>()
+                });
+            }
             return Unit.Task;
         }
 

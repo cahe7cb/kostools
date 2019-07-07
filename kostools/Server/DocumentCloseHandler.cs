@@ -13,8 +13,6 @@ namespace kOS.Tools.Server
 {
     public class DocumentCloseHandler : IDidCloseTextDocumentHandler
     {
-        private readonly TextDocumentSyncKind Change = TextDocumentSyncKind.Incremental;
-
         private ILanguageServer _server;
         private SynchronizationCapability _capability;
 
