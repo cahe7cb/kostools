@@ -13,7 +13,7 @@ namespace kOS.Tools.Server
 {
     class DocumentChangeHandler : IDidChangeTextDocumentHandler
     {
-        public TextDocumentSyncKind Change => TextDocumentSyncKind.Full;
+        public TextDocumentSyncKind Change => TextDocumentSyncKind.Incremental;
 
         public SynchronizationCapability _capability;
         public ILanguageServer _server;
@@ -49,7 +49,6 @@ namespace kOS.Tools.Server
         public void SetCapability(SynchronizationCapability capability)
         {
             _capability = capability;
-            _server.ServerSettings.Capabilities.TextDocumentSync = Change;
         }
     }
 }

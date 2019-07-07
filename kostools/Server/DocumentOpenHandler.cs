@@ -13,8 +13,6 @@ namespace kOS.Tools.Server
 {
     public class DocumentOpenHandler : IDidOpenTextDocumentHandler
     {
-        private readonly TextDocumentSyncKind Change = TextDocumentSyncKind.Full;
-
         private ILanguageServer _server;
         private SynchronizationCapability _capability;
 
@@ -31,12 +29,6 @@ namespace kOS.Tools.Server
             _server = server;
         }
 
-        public void SetCapability(SynchronizationCapability capability)
-        {
-            _capability = capability;
-            _server.ServerSettings.Capabilities.TextDocumentSync = Change;
-        }
-
         public Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
             Console.Error.WriteLine("This shit did open");
@@ -49,6 +41,11 @@ namespace kOS.Tools.Server
             {
                 DocumentSelector = _documentSelector
             };
+        }
+
+        public void SetCapability(SynchronizationCapability capability)
+        {
+            _capability = capability;
         }
     }
 }

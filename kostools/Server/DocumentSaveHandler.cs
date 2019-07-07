@@ -13,7 +13,7 @@ namespace kOS.Tools.Server
 {
     public class DocumentSaveHandler : IDidSaveTextDocumentHandler
     {
-        private readonly TextDocumentSyncKind Change = TextDocumentSyncKind.Full;
+        private readonly TextDocumentSyncKind Change = TextDocumentSyncKind.Incremental;
 
         private ILanguageServer _server;
         private SynchronizationCapability _capability;
@@ -31,6 +31,12 @@ namespace kOS.Tools.Server
             _server = server;
         }
 
+        public Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
+        {
+            Console.Error.WriteLine(request.Text ?? "(null)");
+            return Unit.Task;
+        }
+
         public TextDocumentSaveRegistrationOptions GetRegistrationOptions()
         {
             return new TextDocumentSaveRegistrationOptions()
@@ -40,16 +46,19 @@ namespace kOS.Tools.Server
             };
         }
 
-        public Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
-        {
-            Console.Error.WriteLine("This shit did save");
-            return Unit.Task;
-        }
-
         public void SetCapability(SynchronizationCapability capability)
         {
             _capability = capability;
             _server.ServerSettings.Capabilities.TextDocumentSync = Change;
+            _server.ServerSettings.Capabilities.TextDocumentSync.Options = new TextDocumentSyncOptions()
+            {
+                Change = Change,
+                Save = new SaveOptions()
+                {
+                    IncludeText = true
+                },
+                OpenClose = true
+            };
         }
     }
 }
