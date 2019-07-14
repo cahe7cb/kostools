@@ -38,12 +38,12 @@ namespace kOS.Tools.Server
         {
             if(request.Text != null)
             {
-                _bufferManager.put(request.TextDocument.Uri, request.Text);
+                _bufferManager.Put(request.TextDocument.Uri, request.Text);
             }
 
             var script = new kOS.Tools.Script();
 
-            var text = _bufferManager.get(request.TextDocument.Uri);
+            var text = _bufferManager.Get(request.TextDocument.Uri);
             var errors = script.Compile(null, 0, text, null, null);
 
             var diagnostics = new Diagnostic[errors.Count];
@@ -57,12 +57,12 @@ namespace kOS.Tools.Server
                         Code = error.Code,
                         Message = error.Message,
                         Range = new Range(
-                            new Position(error.Line-1, error.Column-1),
-                            new Position(error.Line-1, (error.Column-1)+error.Length)
+                            new Position(error.Line - 1, error.Column - 1),
+                            new Position(error.Line - 1, (error.Column - 1) + error.Length)
                         ),
                         Severity = DiagnosticSeverity.Error,
                         RelatedInformation = new Container<DiagnosticRelatedInformation>(),
-                        Source = script.getSource()
+                        Source = script.GetSource()
                     };
                 }
             }

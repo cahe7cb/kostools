@@ -46,9 +46,10 @@ namespace kOS.Tools.Server
 
         public Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken)
         {
+            Console.Error.WriteLine("Document changed");
             foreach(var change in request.ContentChanges)
             {
-                _bufferManager.patch(request.TextDocument.Uri, change);
+                _bufferManager.Patch(request.TextDocument.Uri, change);
             }
             return Unit.Task;
         }

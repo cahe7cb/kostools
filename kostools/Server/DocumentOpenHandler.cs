@@ -39,7 +39,7 @@ namespace kOS.Tools.Server
                                 + " version " + request.TextDocument.Version);
             if(!(request.TextDocument.Text is null))
             {
-                _bufferManager.put(request.TextDocument.Uri, request.TextDocument.Text);
+                _bufferManager.Put(request.TextDocument.Uri, request.TextDocument.Text);
             }
             return Unit.Task;
         }

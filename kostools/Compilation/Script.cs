@@ -19,12 +19,17 @@ namespace kOS.Tools
             parser = new Parser(scanner);
         }
 
+        public ParseTree Parse(string scriptText)
+        {
+            return parser.Parse(scriptText);
+        }
+
         public ParseErrors Compile(GlobalPath filePath, int startLineNum, string scriptText, string contextId, CompilerOptions options)
         {
             return parser.Parse(scriptText).Errors;
         }
 
-        public string getSource()
+        public string GetSource()
         {
             return parser.GetType().ToString();
         }
