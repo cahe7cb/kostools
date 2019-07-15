@@ -18,6 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
 using kOS.Communication;
 using kOS.Control;
+using kOS.Safe.Encapsulation.Suffixes;
 
 namespace kOS.Tools.Server
 {
@@ -240,16 +241,45 @@ namespace kOS.Tools.Server
                 {
                     foreach (var suffix in suffixes)
                     {
-                        items.Add(new CompletionItem()
-                        {
-                            Label = suffix.Key,
-                            Detail = suffix.Value.GetType().GenericTypeArguments?[0].Name,
-                            Documentation = suffix.Value.Description
-                        });
+                        items.Add(GetSuffixCompletionItem(suffix.Key, suffix.Value));
                     }
                 }
             }
             return new CompletionList(items);
+        }
+
+        private CompletionItem GetSuffixCompletionItem(string name, ISuffix suffix)
+        {
+            var type = suffix.GetType();
+            var detail = "";
+
+            try
+            {
+                var infoGetter = typeof(SuffixBase).GetMethod(
+                    "DelegateInfo",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                var info = (DelegateInfo)infoGetter.Invoke(suffix, null);
+                if (info != null)
+                {
+                    detail += "( ";
+                    foreach (var arg in info.Parameters)
+                    {
+                        detail += arg.ParameterType.Name + " ";
+                    }
+                    detail += ") -> " + info.ReturnType.Name;
+                }
+            }
+            catch (TargetInvocationException)
+            {
+                detail = type.GenericTypeArguments?[0].Name;
+            }
+
+            return new CompletionItem()
+            {
+                Label = name,
+                Detail = detail,
+                Documentation = suffix.Description
+            };
         }
 
         private IDictionary<string, ISuffix> GetTrailerSuffixes(List<ParseNode> trailer)
@@ -287,15 +317,11 @@ namespace kOS.Tools.Server
         private Structure GetMockForSymbol(ParseNode node)
         {
             Structure mock = null;
-            if (_bindings.TryGetValue(node.Token.Text.ToLower(), out Type mockType))
+            if (_bindings.TryGetValue(node.Token.Text.ToUpper(), out Type mockType))
             {
                 if (_mocks.TryGetValue(mockType, out Structure obj))
                 {
                     mock = obj;
-                }
-                else
-                {
-                    Console.Error.WriteLine("Couldn't find mock for " + mockType.FullName);
                 }
             }
             return mock;
@@ -318,18 +344,20 @@ namespace kOS.Tools.Server
                 foreach (var child in suffix.Nodes)
                 {
                     ParseNode identifier = null;
-                    if(child.Token.Type == TokenType.suffixterm)
+                    try
                     {
-                        identifier = child.Nodes?[0].Nodes?[0];
-                    }
-                    else if(child.Token.Type == TokenType.suffix_trailer)
-                    {
-                        identifier = child.Nodes?[1].Nodes?[0].Nodes?[0];
-                    }
-                    if(identifier != null)
-                    {
+                        if (child.Token.Type == TokenType.suffixterm)
+                        {
+                            identifier = child.Nodes[0]?.Nodes[0];
+                        }
+                        else if(child.Token.Type == TokenType.suffix_trailer)
+                        {
+                            identifier = child.Nodes[1]?.Nodes[0]?.Nodes[0];
+                        }
                         chain.Add(identifier);
                     }
+                    catch (ArgumentOutOfRangeException)
+                    {}
                 }
             }
             return chain;
