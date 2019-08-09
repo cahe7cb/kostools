@@ -19,6 +19,7 @@ using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServ
 using kOS.Communication;
 using kOS.Control;
 using kOS.Safe.Encapsulation.Suffixes;
+using kOS.Suffixed.Part;
 
 namespace kOS.Tools.Server
 {
@@ -55,12 +56,19 @@ namespace kOS.Tools.Server
         {
             var items = new CompletionList();
 
-            if (request.Context.TriggerKind == CompletionTriggerKind.TriggerCharacter)
+            if(request.Context != null)
             {
-                if (request.Context.TriggerCharacter == ":")
+                if (request.Context.TriggerKind == CompletionTriggerKind.TriggerCharacter)
                 {
-                    items = StructureMemberComplete(request);
+                    if (request.Context.TriggerCharacter == ":")
+                    {
+                        items = StructureMemberComplete(request);
+                    }
                 }
+            }
+            else
+            {
+                items = StructureMemberComplete(request);
             }
 
             return Task.FromResult(items);
@@ -96,6 +104,8 @@ namespace kOS.Tools.Server
                 Structure obj = (Structure)constructor.Invoke(new object[] { null, new SharedObjects() });
                 if (obj == null)
                     Console.Error.WriteLine("Failed to create mock object for " + type.ToString());
+                else
+                    obj.HasSuffix("TYPENAME");
                 return obj;
             });
 
@@ -115,7 +125,7 @@ namespace kOS.Tools.Server
             _mocks.GetOrAdd(typeof(kOS.Suffixed.Vector), (type) =>
             {
                 var obj = new kOS.Suffixed.Vector();
-                obj.HasSuffix(""); // force suffix initialization
+                obj.HasSuffix("TYPENAME"); // force suffix initialization
                 return obj;
             });
 
@@ -137,7 +147,7 @@ namespace kOS.Tools.Server
             _mocks.GetOrAdd(typeof(StringValue), (type) =>
             {
                 var obj = new StringValue("");
-                obj.HasSuffix(""); // force suffix initialization
+                obj.HasSuffix("TYPENAME"); // force suffix initialization
                 return obj;
             });
 
@@ -203,10 +213,70 @@ namespace kOS.Tools.Server
                     Console.Error.WriteLine("Failed to create mock for " + type.ToString());
                 return obj;
             });
+
+            _mocks.GetOrAdd(typeof(FlightControl), (type) =>
+            {
+                return new FlightControl((Vessel)null);
+            });
+
+            _mocks.GetOrAdd(typeof(ListValue), (type) =>
+            {
+                var obj = new ListValue();
+                obj.HasSuffix("TYPENAME");
+                return obj;
+            });
+
+            _mocks.GetOrAdd(typeof(ListValue<Structure>), (type) =>
+            {
+                var obj = new ListValue<Structure>();
+                obj.HasSuffix("TYPENAME");
+                return obj;
+            });
+
+            _mocks.GetOrAdd(typeof(PartValue), (type) =>
+            {
+                var constructor = type.GetConstructor(
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new Type[] { typeof(SharedObjects), typeof(global::Part), typeof(PartValue), typeof(DecouplerValue) },
+                    null);
+                Structure obj = (Structure)constructor.Invoke(new object[] { new SharedObjects(), null, null, null });
+                if (obj == null)
+                    Console.Error.WriteLine("Failed to create mock for " + type.ToString());
+                else
+                    obj.HasSuffix("TYPENAME");
+                return obj;
+            });
+
+            _mocks.GetOrAdd(typeof(kOS.Safe.Persistence.Volume), (type) =>
+            {
+                return new Persistence.MockVolume();
+            });
+
+            _mocks.GetOrAdd(typeof(kOS.Safe.Encapsulation.Lexicon), (type) =>
+            {
+                return new kOS.Safe.Encapsulation.Lexicon();
+            });
+
+            _mocks.GetOrAdd(typeof(ConstantValue), (type) =>
+            {
+                return new ConstantValue();
+            });
+
+            _mocks.GetOrAdd(typeof(VesselAlt), (type) =>
+            {
+                return new VesselAlt((SharedObjects)null);
+            });
+
+            _mocks.GetOrAdd(typeof(VesselEta), (type) =>
+            {
+                return new VesselEta((SharedObjects)null);
+            });
         }
 
         private void InitializeBindings()
         {
+            _bindings.TryAdd("CORE", typeof(kOS.Core));
             _bindings.TryAdd("SHIP", typeof(VesselTarget));
             _bindings.TryAdd("KUNIVERSE", typeof(KUniverseValue));
             _bindings.TryAdd("BODY", typeof(BodyTarget));
@@ -219,6 +289,11 @@ namespace kOS.Tools.Server
             _bindings.TryAdd("CONTROLCONNECTION", typeof(ControlConnection));
             _bindings.TryAdd("SOLARPRIMEVECTOR", typeof(Vector));
             _bindings.TryAdd("STEERINGMANAGER", typeof(SteeringManager));
+            //_bindings.TryAdd("CONSTANT", typeof(ConstantValue));
+            _bindings.TryAdd("ARCHIVE", typeof(kOS.Safe.Persistence.Volume));
+            _bindings.TryAdd("ANGULARVELOCITY", typeof(Vector));
+            _bindings.TryAdd("ENCOUNTER", typeof(OrbitInfo));
+            _bindings.TryAdd("ETA", typeof(VesselEta));
         }
 
         private CompletionList StructureMemberComplete(CompletionParams request)
