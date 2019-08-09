@@ -9,44 +9,30 @@ using kOS.Suffixed;
 using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using kOS.Safe.Utilities;
+using kOS.Tools.Execution;
+using System.IO;
 
 namespace kOS.Tools
 {
     class Program
     {
-        /*
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
-            SyntaxVerifier verifier = new SyntaxVerifier();
-            Structure obj = new OrbitInfo();
-            FieldInfo info = obj.GetType().BaseType.GetField("instanceSuffixes", BindingFlags.NonPublic | BindingFlags.Instance);
-            IDictionary<string, ISuffix> suffixes = (IDictionary<string, kOS.Safe.Encapsulation.ISuffix>)info.GetValue(obj);
-
-            suffixes.TryGetValue("POSITION", out ISuffix position);
-
-            Console.WriteLine(position.GetType().GetGenericArguments()[0]);
-
-            verifier.Setup();
+            SafeHouse.Init(new Execution.Config(), new VersionInfo(0, 0, 0, 0), "", false, Directory.GetCurrentDirectory());
+            SafeHouse.Logger = new NoopLogger();
 
             try
             {
-                verifier.RunScript(args[0]);
+                AssemblyWalkAttribute.Walk();
             }
-            catch (KOSParseException e)
+            catch (Exception e)
             {
-                Console.Error.WriteLine("Parse Error");
-                Console.WriteLine(e.VerboseMessage);
+                Console.WriteLine(e);
+                Console.WriteLine(e.StackTrace);
+                throw;
             }
-            catch (KOSCompileException e)
-            {
-                Console.Error.WriteLine("Compiling Error");
-                Console.WriteLine(e.VerboseMessage);
-            }
-        }
-        */
 
-        static void Main(string[] args)
-        {
             MainAsync(args).Wait();
         }
 

@@ -141,14 +141,15 @@
     <Compile Include="Server\DocumentOpenHandler.cs" />
     <Compile Include="Server\DocumentSaveHandler.cs" />
     <Compile Include="Execution\StaticSetup.cs" />
-    <Compile Include="Binding\BindingManager.cs" />
     <Compile Include="Server\BufferManager.cs" />
+    <Compile Include="Persistence\MockVolume.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Compilation\" />
     <Folder Include="Execution\" />
     <Folder Include="Server\" />
     <Folder Include="Binding\" />
+    <Folder Include="Persistence\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

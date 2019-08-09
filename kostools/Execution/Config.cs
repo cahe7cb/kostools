@@ -7,8 +7,36 @@ using System.Collections.Generic;
 
 namespace kOS.Tools.Execution
 {
-    internal class Config : IConfig
+    public class Config : IConfig
     {
+        public Config()
+        {
+        }
+
+        public int TerminalDefaultWidth
+        {
+            get
+            {
+                return 0;
+            }
+
+            set
+            {
+            }
+        }
+
+        public int TerminalDefaultHeight
+        {
+            get
+            {
+                return 0;
+            }
+            set
+            {
+
+            }
+        }
+
         public bool AudibleExceptions
         {
             get
@@ -225,6 +253,16 @@ namespace kOS.Tools.Execution
         }
 
         public bool SetSuffix(string suffixName, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISuffixResult GetSuffix(string suffixName, bool failOkay = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool SetSuffix(string suffixName, object value, bool failOkay = false)
         {
             throw new NotImplementedException();
         }
