@@ -69,7 +69,7 @@ namespace kOS.Tools.Server
             if (pos != -1)
                 pos += (int)position.Character;
 
-            if (!(pos < text.Length))
+            if (!(pos <= text.Length))
                 pos = -1;
 
             return pos;
