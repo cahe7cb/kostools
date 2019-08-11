@@ -10,7 +10,6 @@ using kOS.Safe.Execution;
 using kOS.Safe.Function;
 using kOS.Safe.Persistence;
 using kOS.Safe.Utilities;
-using kOS.Tools.Binding;
 using kOS.Tools.Execution;
 
 namespace kOS.Tools
